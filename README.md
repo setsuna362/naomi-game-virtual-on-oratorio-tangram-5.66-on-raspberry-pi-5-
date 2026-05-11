@@ -1,106 +1,92 @@
-# Naomi-Game-Virtual-On-Oratorio-Tangram-5.66-on-Raspberry-Pi-5-
 Build Naomi Virtual-On Oratorio Tangram 5.66 (M.S.B.S. Ver. 5.66) on Raspberry Pi 5 Step by Step
+# Step 1: 完成img映像燒錄
+取得Raspberry Pi Imager - https://www.raspberrypi.com/software/ <br>
+取得RsplayOS系統 RePlayOS 1.6.0 - https://www.replayos.com/download/ <br>
+下載檔案 replayos-base-rpi-v1.6.0.img.xz <br>
+<p>
+執行 Raspberry Pi Imager (v2.0.7) <br>
+| <br>
+選 Raspberry Pi 5 <br>
+| <br>
+選 使用自定義鏡像img <br>
+| <br>
+選以下載檔案 replayos-base-rpi-v1.6.0.img.xz <br>
+| <br>
+SD Card Reader USB Device(排除系統驅動器打勾) <br>
+<blockquote>＊請務必確定沒有選錯寫入裝置＊ </blockquote>
+| <br>
+寫入 (按下我理解即可進行寫入) <br>
+| <br>
+寫入完成 <br></p>
 
-Raspberry Pi Imager (v2.0.7)
-|
-Raspberry Pi 5
-|
-使用自定義鏡像img
-|
-replayos-base-rpi-v1.6.0.img.xz
-|
-SD Card Reader USB Device(排除系統驅動器打勾)
-|
-寫入 (我理解)
-|
-寫入完成
+# Step 2: 確認系統IP網址
+將寫入完成的TF卡裝上Raspberry Pi 5，並使用靠近電源位置的Micro HDMI輸出口輸出到螢幕 <br>
+在Raspberry Pi 5接上鍵盤滑鼠，之後我們會分成window側與Pi 5側兩邊說明
+Pi 5側:
+Raspberry Pi 5開機 <br>
+| <br>
+選 REPLAY OPTION (Enter) <br>
+| <br>
+選 INFORMATION (Enter)  <br>
+| <br>
+IP (確認項目) <br>
+| <br>
+ETHERNET IP (確認IP address) <br>
+<p>
+你也可以在你的電腦使用 Advanced_IP_Scanner.exe 掃描 Raspberry Pi 5 ip address</p>
 
-==================================================
-開機
-|
-REPLAY OPTION
-|
-INFORMATION
-|
-IP
-|
-ETHERNET IP
-
-==================================================
-
+# Step 3: 使用putty.exe從window側登入Pi 5側
+取得putty - https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html <br>
+使用putty登入剛剛的Raspberry Pi 5 ip address
+<pre>
 login as:root
 password:replayos
-==================================================
-
-
-
-OPTION:
-
-ip addr show wlan0
-
-先直接手動修復 Wi-Fi
-
-cat > /etc/wpa_supplicant/wpa_supplicant-wlan0.conf <<EOF
+</pre>
+試著複製下面這行，然後在putty的畫面按滑鼠右鍵
+<pre><code>ip addr show wlan0</code></pre>
+是的，不用keyin，可以直接Enter就下完指令執行<br>
+<br>
+接著我們先直接手動修復 Wi-Fi
+<pre><code>cat > /etc/wpa_supplicant/wpa_supplicant-wlan0.conf << EOF 
 ctrl_interface=DIR=/var/run/wpa_supplicant
-update_config=1
-country=TW
-
-network={
-    ssid="你的WiFi"
-    psk="你的密碼"
-}
-EOF
-
-如果沒有 IP：
-
-先把舊的 wpa_supplicant 清掉。
-
-1. 殺掉所有 wpa_supplicant
-killall wpa_supplicant
-2. 刪掉 socket lock
+update_config=1 country=TW network={ssid="你的WiFi SSID" psk="你的WiFi密碼"} EOF</code>
+</pre>
+1. 殺掉所有 wpa_supplicant <br>
+2. 刪掉 socket lock <br>
+3. 重新啟動 wpa_supplicant（背景）<br>
+<pre><code>killall wpa_supplicant
 rm -f /var/run/wpa_supplicant/wlan0
+wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf</code></pre>
+成功會看到：Successfully initialized wpa_supplicant
+來確認一下WiFi是否正常工作了
+<pre><code>ip addr show wlan0
+</code></pre>
+# Step 4: 更新系統及編碼程式，編碼flycast
+<pre><code>sudo apt update</code></pre>
+等系統確認那些程式可以更新，確認完後進行更新
+<pre><code>sudo apt -y upgrade</code></pre>
+系統更新後，我們要補充編碼程序，安裝 EGL/DRM 開發依賴，依序更新下方三條項目
+<pre><code>sudo apt install -y cmake build-essential libcurl4-openssl-dev libudev-dev libxext-dev</code></pre>
+<pre><code>sudo apt install -y libdrm-dev libgbm-dev libegl1-mesa-dev libgles2-mesa-dev</code></pre>
+<pre><code>sudo apt install -y libasound2-dev libpulse-dev libsdl2-dev</code></pre>
+到此，應該可以進行cmak，但是我們先確認是否已經安裝
+<pre><code>cmake --version</code></pre>
+接著我們準備要去git flycast的程式，在這之前要先設定好Pi 5系統時間，請依下列格式輸入你現在的正確日期時間
+<pre><code>sudo date -s "2026-05-10 12:10:00"</code></pre>
+然後就可以開始去git flycast的程式
+<pre><code>git clone --recursive https://github.com/flyinghead/flycast.git</code></pre>
+拿到flycast程式後先別急著編碼，我們要再去取MrShooter42的/naomi_network.cpp<br>
+Fix Live Monitor in Virtual On Oratorio Tangram <br>
+This fixes setting the third node to Satellite. 可以讓第三台 Pi 5以Slave加入VOOT的對戰連線進行 Live Monitor
+<pre><code>wget -O /root/flycast/core/network/naomi_network.cpp \
+https://raw.githubusercontent.com/MrShooter42/flycast/84485e97172bdfbcb76e544743f4850cce557ff7/core/network/naomi_network.cpp</code></pre>
+接著就可以準備進行flycast正式編碼了
+<pre><code>cd flycast</code></pre>
+<pre><code>mkdir build && cd build</code></pre>
+<pre><code>cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j$(nproc)</code></pre>
 
-重新啟動 wpa_supplicant（背景）
-wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
-
-成功會看到：
-Successfully initialized wpa_supplicant
-
-ip addr show wlan0
-
-======================================
-$ sudo apt update
-
-$ sudo apt -y upgrade
-
-$ sudo apt install -y cmake build-essential libcurl4-openssl-dev libudev-dev libxext-dev
-
-🚀 Step 2：安裝 EGL/DRM 開發依賴
-
-先補齊 Pi 的 graphics stack：
-
-$ sudo apt install -y libdrm-dev libgbm-dev libegl1-mesa-dev libgles2-mesa-dev
-
-# $ sudo apt install -y libasound2-dev libpulse-dev libsdl2-dev
-
-$ cmake --version
-確認是否已經安裝
-
-$ sudo date -s "2026-05-10 12:10:00"
-
-$ git clone --recursive https://github.com/flyinghead/flycast.git
-
-$ wget -O /root/flycast/core/network/naomi_network.cpp \
-https://raw.githubusercontent.com/MrShooter42/flycast/84485e97172bdfbcb76e544743f4850cce557ff7/core/network/naomi_network.cpp
-
-$ cd flycast
-
-$ mkdir build && cd build
-
-
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j$(nproc)
-==========================================
+# Step 5: 更新系統及編碼程式，編碼flycast
 use WinSCP or FileZilla put
 
 naomi.zip
@@ -181,7 +167,6 @@ network.DCNet = no
 network.Enable = no
 network.EnableUPnP = no
 
-
 [config]
 Dreamcast.ContentPath = /media/sd/roms/sega_dc
 pvr.rend = 4
@@ -191,6 +176,7 @@ rend.Resolution = 1080
 fullscreen = no
 height =1080
 width = 1920
+
 ===========
 Ctrl+O
 Enter
