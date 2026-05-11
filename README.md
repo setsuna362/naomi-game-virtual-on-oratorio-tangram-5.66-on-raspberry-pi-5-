@@ -226,7 +226,7 @@ TTYVHangup=yes
 WantedBy=graphical.target
 ```
 
-改完所有參數之後，按 Ctrl+O 進行存檔<br>
+貼上後，按 Ctrl+O 進行存檔<br>
 Enter 同意覆寫<br>
 Ctrl+X 離開<br>
 
@@ -300,7 +300,8 @@ FTP 連線到 Pi 5 的 ip address 帳號 root 密碼 replayos<br>
 遊戲結束後，回到電腦端 putty 這邊，按 Ctrl+C 中斷 flycast 程式<br>
 視你的需求進入 Naomi 的 Virtual-On - Oratorio Tangram 進行確認 (看 VMU 是否有自己修改好的機體)<br>
 VMU 存檔位於
-<pre>/root/.local/share/flycast</pre>pre>
+<pre>/root/.local/share/flycast</pre>
+You must use Slot B VMU in Dreamcast to save the character you edited before Naomi can read it, so please set Slot A Controller VMU to None.
 
 確認無誤之後視你的需求恢復自動開機運行
 <pre><code>systemctl daemon-reload</code></pre>
