@@ -133,14 +133,16 @@ password:replayos</pre>
 進行 emu.cfg 編寫
 <pre><code>nano /root/.config/flycast/emu.cfg</code></pre>
 用 nano 的語法打開 emu.cfg 後，新增以下 👇 的內容到 emu.cfg 內最上方<br>
-<pre><code>[HDR-0040]
+
+```ini
+[HDR-0040]
+config.PerGameVmu = no
 input.device1 = 8
 input.device1.1 = 10
 input.device1.2 = 10
 input.device2 = 0
 input.device2.1 = 1
 input.device2.2 = 1
-config.PerGameVmu = no
 
 [VIRTUAL-ON ORATORIO TANGRAM]
 config.PerGameVmu = no
@@ -151,13 +153,15 @@ input.device1.UseNetworkExpansionDevices = yes
 network.ActAsServer = no
 network.DCNet = no
 network.Enable = no
-network.EnableUPnP = no</code></pre>
+network.EnableUPnP = no
+```
+
 貼完之後接著找到下方的參數進行數據修改
 <pre>[config]
 Dreamcast.ContentPath = /media/sd/roms/sega_dc
 pvr.rend = 4
 rend.Resolution = 1080
-
+<br>
 [window]
 fullscreen = no
 height =1080
@@ -194,7 +198,8 @@ password:replayos</pre>
 建立 service 設定檔
 <pre><code>nano /etc/systemd/system/flycast.service</code></pre>
 貼上下方的 code 👇
-<pre><code>
+
+```ini
 [Unit]
 Description=Flycast Kiosk
 After=systemd-user-sessions.service getty@tty1.service
@@ -218,7 +223,9 @@ TTYReset=yes
 TTYVHangup=yes
 
 [Install]
-WantedBy=graphical.target</code></pre>
+WantedBy=graphical.target
+```
+
 改完所有參數之後，按 Ctrl+O 進行存檔<br>
 Enter 同意覆寫<br>
 Ctrl+X 離開<br>
