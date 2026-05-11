@@ -22,7 +22,7 @@ SD Card Reader USB Device(排除系統驅動器打勾) <br>
 
 # Step 2: 確認系統 IP 位址
 將寫入完成的TF卡裝上Raspberry Pi 5，並使用靠近電源位置的Micro HDMI輸出口輸出到螢幕 <br>
-在Raspberry Pi 5 接上鍵盤滑鼠，之後我們會分成 window側 與 Pi 5側 兩邊說明 <br>
+在Raspberry Pi 5 接上鍵盤滑鼠網路，之後我們分成 window側 與 Pi 5側 兩邊說明如何操作 <br>
 <h4>Pi 5側: </h4>
 Raspberry Pi 5開機 <br>
 | <br>
@@ -33,7 +33,7 @@ Raspberry Pi 5開機 <br>
 IP (確認項目) <br>
 | <br>
 ETHERNET IP (確認IP address) <br>
-<p>你也可以在你的電腦使用 Advanced_IP_Scanner.exe 掃描 Raspberry Pi 5 ip address</p>
+<p>你也可以在你的電腦使用 <pre>Advanced_IP_Scanner.exe</pre> 掃描 Raspberry Pi 5 ip address</p>
 
 # Step 3: 使用 putty.exe 從 window 側登入 Pi 5側
 <h4>window 側: </h4>
@@ -54,9 +54,9 @@ update_config=1 country=TW network={ssid="你的WiFi SSID" psk="你的WiFi密碼
 1. 殺掉所有 wpa_supplicant <br>
 2. 刪掉 socket lock <br>
 3. 重新啟動 wpa_supplicant（背景）<br>
-<pre><code>killall wpa_supplicant
-rm -f /var/run/wpa_supplicant/wlan0
-wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf</code></pre>
+<pre><code>killall wpa_supplicant</code></pre>
+<pre><code>rm -f /var/run/wpa_supplicant/wlan0</code></pre>
+<pre><code>wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf</code></pre>
 成功會看到：Successfully initialized wpa_supplicant
 來確認一下 WiFi 是否正常工作了
 <pre><code>ip addr show wlan0</code></pre>
@@ -67,9 +67,12 @@ wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf</cod
 這個指令是讓系統確認那些程式需要更新，待確認完後我們開始進行更新
 <pre><code>sudo apt -y upgrade</code></pre>
 系統更新完成後，我們要補充編碼程序，安裝 EGL/DRM 開發依賴<br>
-依序執行下方三條項目進行更新
+依序執行下方三條項目進行更新<br>
+基本編譯工具
 <pre><code>sudo apt install -y cmake build-essential libcurl4-openssl-dev libudev-dev libxext-dev</code></pre>
+EGL / DRM 依賴
 <pre><code>sudo apt install -y libdrm-dev libgbm-dev libegl1-mesa-dev libgles2-mesa-dev</code></pre>
+音效 / SDL2
 <pre><code>sudo apt install -y libasound2-dev libpulse-dev libsdl2-dev</code></pre>
 到此，應該可以進行 cmake，但是我們先確認是否已經安裝
 <pre><code>cmake --version</code></pre>
@@ -77,7 +80,7 @@ wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant-wlan0.conf</cod
 <pre><code>sudo date -s "2026-05-10 12:10:00"</code></pre>
 接下來開始 git flycast 的程式
 <pre><code>git clone --recursive https://github.com/flyinghead/flycast.git</code></pre>
-拿到 flycast 程式後先別急著編碼，我們要再去取 MrShooter42 的 naomi_network.cpp<br>
+拿到 flycast 程式後先別急著編碼，我們要套用 MrShooter42 的 Naomi Network 修正 naomi_network.cpp<br>
 <P></P>MrShooter42 Fix Live Monitor in Virtual On Oratorio Tangram. This fixes setting the third node to Satellite.</P> 
 用這個 network cpp 編碼進 flycast，可以讓第三台 Pi 5以Slave 主機的方式加入 VOOT 的對戰連線進行 Live Monitor
 <pre><code>wget -O /root/flycast/core/network/naomi_network.cpp \
@@ -166,9 +169,10 @@ rend.Resolution = 1080
 fullscreen = no
 height =1080
 width = 1920</pre>
-改完所有參數之後，按 Ctrl+O 進行存檔<br>
+修改完所有參數之後，存檔方式：
+<pre>Ctrl+O 進行存檔<br>
 Enter 同意覆寫<br>
-Ctrl+X 離開<br>
+Ctrl+X 離開<br></pre>
 <p>我們來測試一下修改好 emu.cfg 的 flycast 執行效果</p>
 <pre><code>cd flycast</code></pre>
 <pre><code>cd build</code></pre>
@@ -301,7 +305,8 @@ FTP 連線到 Pi 5 的 ip address 帳號 root 密碼 replayos<br>
 視你的需求進入 Naomi 的 Virtual-On - Oratorio Tangram 進行確認 (看 VMU 是否有自己修改好的機體)<br>
 VMU 存檔位於
 <pre>/root/.local/share/flycast</pre>
-You must use Slot B VMU in Dreamcast to save the character you edited before Naomi can read it, so please set Slot A Controller VMU to None.
+<p>Naomi 讀取 Dreamcast 機體資料時，必須使用 Slot B VMU。</p>
+<p>須將 Slot A Controller VMU 設為 None。</p>
 
 確認無誤之後視你的需求恢復自動開機運行
 <pre><code>systemctl daemon-reload</code></pre>
