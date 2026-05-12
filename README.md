@@ -177,7 +177,7 @@ network.EnableUPnP = no
 <pre>[config]
 Dreamcast.ContentPath = /media/sd/roms/sega_dc
 pvr.rend = 4
-rend.Resolution = 1080
+rend.Resolution = 1200
 <br>
 [window]
 fullscreen = no
